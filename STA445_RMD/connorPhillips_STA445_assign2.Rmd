@@ -1,0 +1,186 @@
+---
+title: "STA 445 HW2"
+author: "Connor Phillips"
+date: "2/27/2024"
+output: pdf_document
+---
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+```
+
+## Problem 1
+
+Create a vector of three elements (2,4,6) and name that vector `vec_a`. Create a second vector, `vec_b`, that contains (8,10,12). Add these two vectors together and name the result `vec_c`.
+```{r}
+vec_a = c(2,4,6)
+vec_b = c(8,10,12)
+vec_c = vec_a + vec_b
+vec_c
+```
+
+## Problem 2
+
+Create a vector, named `vec_d`, that contains only two elements (14,20). Add this vector to `vec_a`. What is the result and what do you think R did (look up the recycling rule using Google)? What is the warning message that R gives you?
+  The result is 16, 24, 20
+  I get the message: "Warning: longer object length is not a multiple of shorter object length"
+```{r}
+vec_d = c(14,20)
+vec_a + vec_d
+```
+
+## Problem 3
+
+Next add 5 to the vector vec_a. What is the result and what did R do? Why doesn't in give you a warning message similar to what you saw in the previous problem?
+
+  The result is 7 9 11
+  There is no error because 5 is being added to each number in vec_a, it isn't running into the issue of adding numbers within vectors that are two different lengths.
+```{r}
+vec_a + 5
+```
+
+## Problem 4
+
+Generate the vector of integers $\left\{ 1,2,\dots5\right\}$ in two different ways. 
+
+a.  First using the `seq()` function
+```{r}
+vec1_5a = seq(1,5,1)
+vec1_5a
+```
+
+b. Using the `a:b` shortcut.
+```{r}
+vec1_5b = 1:5
+vec1_5b
+```
+
+
+## Problem 5
+
+Generate the vector of even numbers $\left\{ 2,4,6,\dots,20\right\}$ 
+
+a. Using the seq() function  
+```{r}
+vec2_20a = seq(2,20, by=2)
+vec2_20a
+```
+
+
+b. Using the a:b shortcut and some subsequent algebra. 
+```{r}
+vec2_20b = 2*(1:10)
+vec2_20b
+```
+
+
+## Problem 6
+
+Generate a vector of 21 elements that are evenly placed between 0 and 1 using the `seq()` command and name this vector `x`. 
+```{r}
+x = seq(0, 1, length.out=21)
+x
+```
+
+
+## Problem 7
+
+Generate the vector $\left\{ 2,4,8,2,4,8,2,4,8\right\}$ using the `rep()` command to replicate the vector c(2,4,8). 
+```{r}
+vec2_8rep = rep(c(2, 4, 8), 3)
+vec2_8rep
+```
+  
+
+
+## Problem 8
+Generate the vector $\left\{ 2,2,2,2,4,4,4,4,8,8,8,8\right\}$
+using the `rep()` command. You might need to check the help file for rep() to see all of the options that rep() will accept. In particular, look at the optional argument `each=`.
+```{r}
+vec_numRep = rep(c(2, 4, 8), each=4)
+vec_numRep
+```
+
+## Problem 9 
+
+In this problem, we will work with the matrix 
+$$ \left[\begin{array}{ccccc}
+    2 & 4 & 6 & 8 & 10\\
+    12 & 14 & 16 & 18 & 20\\
+    22 & 24 & 26 & 28 & 30
+    \end{array}\right]$$
+    
+a.  Create the matrix in two ways and save the resulting matrix as `M`.
+
+i. Create the matrix using some combination of the `seq()` and `matrix()` commands.
+```{r}
+M = matrix(seq(2, 30, by=2), nrow=3, ncol=5, byrow = TRUE)
+M
+```
+ii. Create the same matrix by some combination of multiple `seq()` commands and either the `rbind()` or `cbind()` command.
+```{r}
+c1 = seq(2,10, by=2)
+c2 = seq(12,20, by=2)
+c3 = seq(22,30, by=2)
+
+M = rbind(c1, c2, c3)
+M
+```
+
+b. Extract the second row out of M.
+```{r}
+M[2,]
+```
+
+c. Extract the element in the third row and second column of M
+```{r}
+M[[3, 2]]
+```
+
+
+## Problem 10 
+
+The following code creates a `data.frame` and then has two different methods for removing the rows with `NA` values in the column `Grade`. Explain the difference between the two.
+
+  The first code creates a data frame that is taking the inverse of which grades in the data frame are not true (which indices are false.)
+  The second code creates a data frame that is is selecting grades where the index is  not equal to NA. 
+```{r, eval=FALSE}
+df <- data.frame(name= c('Alice','Bob','Charlie','Daniel'),
+                     Grade = c(6,8,NA,9))
+    
+df[ -which(  is.na(df$Grade) ), ]
+
+df[  which( !is.na(df$Grade) ), ]
+```
+
+
+## Problem 11 
+
+Create and manipulate a list.
+
+a.  Create a list named my.test with elements
+        + x = c(4,5,6,7,8,9,10)
+        + y = c(34,35,41,40,45,47,51)
+        + slope = 2.82
+        + p.value = 0.000131
+```{r}
+x = c(4,5,6,7,8,9,10)
+y = c(34,35,41,40,45,47,51)
+slope = 2.82
+p.value = 0.000131
+my.list = list(x=x, y=y, slope=slope, p.value=p.value)
+my.list
+```
+
+b.  Extract the second element in the list.
+```{r}
+my.list$y
+```
+
+
+c.  Extract the element named `p.value` from the list.
+```{r}
+my.list$p.value
+```
+
+
+

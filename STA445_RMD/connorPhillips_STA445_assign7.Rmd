@@ -1,0 +1,155 @@
+---
+title: "STA_445_Assignment 7"
+author: "Connor Phillips"
+date: "04/04/2024"
+output: pdf_document
+---
+
+Load your packages here:
+```{r include=FALSE}
+library(tidyverse)   # loading ggplot2 and dplyr
+library(patchwork)   # arranging multiple graphs into 1 figure
+library(viridis)     # The viridis color schemes
+library(latex2exp)   # For plotting math notation
+library(faraway)
+library(ggrepel)
+```
+
+## Problem 1: 
+
+\color{blue} The `infmort` data set from the package `faraway` gives the infant mortality rate for a variety of countries. The information is relatively out of date, but will be fun to graph. Visualize the data using by creating scatter plots of mortality vs income while faceting using `region` and setting color by `oil` export status. Utilize a $\log_{10}$ transformation for both `mortality` and `income` axes. This can be done either by doing the transformation inside the `aes()` command or by utilizing the `scale_x_log10()` or `scale_y_log10()` layers. The critical difference is if the scales are on the original vs log transformed scale. Experiment with both and see which you prefer.
+    
+a.  The `rownames()` of the table gives the country names and you should create a new column that contains the country names. *`rownames`
+```{r}
+p1data = infmort %>%
+  mutate(country = rownames(infmort))
+head(p1data)
+```
+
+b. Create scatter plots with the `log10()` transformation inside the `aes()`command.
+```{r warning=FALSE}
+plot1 = ggplot(p1data, aes(x=log10(mortality), y=log10(income), color=oil)) +
+  geom_point() +
+  facet_wrap(.~region)
+plot1
+```
+
+c. Create the scatter plots using the `scale_x_log10()` and `scale_y_log10()`.Set the major and minor breaks to be useful and aesthetically pleasing.Comment on which version you find easier to read.
+```{r warning=FALSE, fig.width=10, fig.height=6}
+plot2 = ggplot(p1data, aes(x=mortality, y=income, color=oil)) +
+  geom_point() +
+  scale_x_log10(breaks=c(10,100,300),
+                  minor=c(1:10,
+                        seq( 10, 100,by=10 ),
+                        seq( 100, 300,by=50 ))) +
+  scale_y_log10(breaks=c(100, 1000, 5000),
+                  minor=c(1:10,
+                        seq( 10, 100,by=10 ),
+                        seq(100,1000,by=100),
+                        seq(1000,5000,by=1000))) +
+  xlab('Deaths/1000 Births') +
+  ylab('Per Capita Annual Income in Dollars') +
+  facet_wrap(.~region) 
+plot2
+```
+
+d.  The package `ggrepel` contains functions `geom_text_repel()` and `geom_label_repel()` that mimic the basic `geom_text()` and `geom_label()`functions in `ggplot2`, but work to make sure the labels don't overlap.  Select 10-15 countries to label and do so using the `geom_text_repel()` function.
+
+**use slice_sample(p1data, n = 12)
+
+  xlab('Deaths/1000 Births') +
+  ylab('Per Capita Annual Income in Dollars') +
+```{r warning=FALSE, fig.width=10, fig.height=6}
+countrylabels = slice_sample(p1data, n = 15)
+plot2 = ggplot(p1data) +
+  geom_point(aes(x=mortality, y=income, color=oil)) +
+  scale_x_log10(breaks=c(10,100,300),
+                  minor=c(1:10,
+                        seq( 10, 100,by=10 ),
+                        seq( 100, 300,by=50 ))) +
+  scale_y_log10(breaks=c(100, 1000, 5000),
+                  minor=c(1:10,
+                        seq( 10, 100,by=10 ),
+                        seq(100,1000,by=100),
+                        seq(1000,5000,by=1000))) +
+  geom_text_repel(data=countrylabels, aes(x=mortality, y=income, label=country)) +
+  xlab('Deaths/1000 Births') +
+  ylab('Per Capita Annual Income in Dollars') +
+  facet_wrap(.~region) 
+plot2
+```
+
+## \color{black}Problem 2
+
+\color{blue} Using the `datasets::trees` data, complete the following:
+
+a. Create a regression model for $y=$ `Volume` as a function of $x=$ `Height`.
+```{r}
+p2model <- lm( Volume ~ Height, data=trees)
+p2model
+```
+    
+b. Using the str(your model's name) command, to get a list of all the information stored in the linear model object.  Use $ to extract the slope and intercept of the regression line (the coefficients).
+```{r}
+#str(p2model)
+p2slope = p2model$coefficients[2]
+p2slope
+p2intercept = p2model$coefficients[1]
+p2intercept
+```
+
+c. Using `ggplot2`, create a scatter plot of Volume vs Height. 
+d. Create a nice white filled rectangle to add text information to using by adding the following annotation layer.
+e. Add some annotation text to write the equation of the line
+        $\hat{y}_i = -87.12 + 1.54 * x_i$ in the text area.
+f.   Add annotation to add $R^2 = 0.358$
+g. Add the regression line in red. The most convenient layer function to use is `geom_abline()`. 
+```{r warning=FALSE}
+ggplot(trees, aes(y=Volume, x=Height)) +
+  geom_point() +
+  annotate('rect', xmin=65, xmax=75, ymin=60, ymax=74,
+         fill='white', color='black') + 
+  annotate('text',  x=70, y=70,
+           label=latex2exp::TeX('$\\hat{y}_i = -87.12 + 1.54 * x_i$')) +
+  annotate('text',  x=70, y=65,
+           label=latex2exp::TeX('$R^2 = 0.358$')) +
+  geom_abline(slope = p2slope, intercept = p2intercept, color = 'red')
+```
+## \color{black}Problem 3
+
+\color{blue}In `datasets::Titanic` table summarizes the survival of passengers aboard the ocean liner *Titanic*. It includes information about passenger class, sex, and age (adult or child). Create a bar graph showing the number of individuals that survived based on the passenger `Class`, `Sex`, and `Age` variable information. You'll need to use faceting and/or color to get all four variables on the same graph. Make sure that differences in survival among different classes of children are perceivable.  *Unfortunately, the data is stored as a `table`and to expand it to a data frame, the following code can be used.*
+    
+```{r}
+Titanic = Titanic %>% as.data.frame()
+```
+
+a. Make this graph using the default theme. *If you use color to denote survivorship, modify the color scheme so that a cold color denotes death.*
+
+```{r fig.height=6}
+p3 = ggplot(Titanic, aes(x=Class, y=Freq)) +
+  geom_bar(aes(fill=Survived), stat='identity') +
+  scale_fill_manual(values=c('cyan','orange')) +
+  labs(title='Titanic Survivorship') +
+  facet_wrap(Sex~Age)
+p3
+```
+b. Make this graph using the `theme_bw()` theme.
+```{r fig.height=6}
+p3 = ggplot(Titanic, aes(x=Class, y=Freq)) +
+  geom_bar(aes(fill=Survived), stat='identity') +
+  scale_fill_manual(values=c('cyan','orange')) +
+  labs(title='Titanic Survivorship') +
+  facet_wrap(Sex~Age)
+p3 + theme_bw()
+```
+
+c. Make this graph using the `cowplot::theme_minimal_hgrid()` theme.
+```{r fig.height=6}
+p3 + cowplot::theme_minimal_hgrid()
+```
+
+d. Why would it be beneficial to drop the vertical grid lines?
+  This helps show that it is nominal data we are comparing on the x-axis.
+
+
+
